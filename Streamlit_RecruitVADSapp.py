@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[16]:
+# In[17]:
 
 
 import streamlit as st
@@ -27,34 +27,6 @@ vectorizer = pickle.loads(vectorizer_file.content)
 image = Image.open(requests.get('https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/pngtree-online-remote-recruitment-png-image_5413767.jpg', stream=True).raw)
 logo = Image.open(requests.get('https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Recruit%20VADS%20logo.png', stream=True).raw)
 
-# Display the banner with logo and vector image
-st.image(image, use_column_width=True)
-
-# Set banner color
-st.markdown(
-    """
-    <style>
-        .reportview-container {
-            background: rgb(13, 106, 144);
-            color: white;
-            padding-top: 1rem;
-            padding-right: 2rem;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# Place logo on the right side
-st.image(logo, use_column_width=False, caption="Your Logo")
-
-# Create your input fields below the banner
-st.sidebar.header("Input Fields")
-job_title = st.sidebar.text_input('Job Title')
-skills = st.sidebar.text_input('Skills')
-experience = st.sidebar.text_input('Experience')
-certification = st.sidebar.text_input('Certification')
-
 # Define a function that takes the input from the UI and returns the relevancy score
 def get_relevancy_score(job_title, skills, certification, experience):
     # Create a vector from the input
@@ -77,6 +49,31 @@ def get_relevancy_score(job_title, skills, certification, experience):
 
     return output
 
+# Define a function that paginates the output dataframe
+def paginate_dataframe(dataframe, page_size, page_num):
+    # Calculate the offset based on the page size and number
+    offset = page_size * (page_num - 1)
+    # Return a slice of the dataframe
+    return dataframe[offset:offset + page_size]
+
+# Create a wide banner with logo and vector image
+st.markdown(
+    f"""
+    <div style="background-color:rgb(13, 106, 144);padding:10px">
+    <img src="data:image/png;base64,{logo}" align="right" width="100" height="100">
+    <img src="data:image/png;base64,{image}" align="left" width="100" height="100">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# Create your input fields below the banner
+st.sidebar.header("Input Fields")
+job_title = st.sidebar.text_input('Job Title')
+skills = st.sidebar.text_input('Skills')
+experience = st.sidebar.text_input('Experience')
+certification = st.sidebar.text_input('Certification')
+
 # Create your buttons
 if st.sidebar.button('Apply'):
     # Process the inputs and run your model
@@ -85,7 +82,14 @@ if st.sidebar.button('Apply'):
     # Display the output table on the right side
     st.sidebar.header("Output Table")
     st.sidebar.table(output_df)
-    st.table(output_df)  # Display output table next to input fields
+
+    # Create pagination for the output table
+    page_size = 10 # Number of records per page
+    total_pages = (int(len(output_df) / page_size) if int(len(output_df) / page_size) > 0 else 1) # Total number of pages
+    current_page = st.number_input("Page", min_value=1, max_value=total_pages, step=1) # Current page number
+    st.markdown(f"Page **{current_page}** of **{total_pages}**") # Display the page number
+    output_df = paginate_dataframe(output_df, page_size, current_page) # Paginate the output dataframe
+    st.table(output_df) # Display the output table next to input fields
 
 if st.sidebar.button('Clear'):
     # Clear the input fields
