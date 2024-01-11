@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[13]:
+# In[16]:
 
 
 import streamlit as st
@@ -27,10 +27,28 @@ vectorizer = pickle.loads(vectorizer_file.content)
 image = Image.open(requests.get('https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/pngtree-online-remote-recruitment-png-image_5413767.jpg', stream=True).raw)
 logo = Image.open(requests.get('https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Recruit%20VADS%20logo.png', stream=True).raw)
 
-# Display the image and logo
+# Display the banner with logo and vector image
 st.image(image, use_column_width=True)
 
-# Create your input fields on the left side
+# Set banner color
+st.markdown(
+    """
+    <style>
+        .reportview-container {
+            background: rgb(13, 106, 144);
+            color: white;
+            padding-top: 1rem;
+            padding-right: 2rem;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Place logo on the right side
+st.image(logo, use_column_width=False, caption="Your Logo")
+
+# Create your input fields below the banner
 st.sidebar.header("Input Fields")
 job_title = st.sidebar.text_input('Job Title')
 skills = st.sidebar.text_input('Skills')
@@ -64,13 +82,10 @@ if st.sidebar.button('Apply'):
     # Process the inputs and run your model
     output_df = get_relevancy_score(job_title, skills, certification, experience)
 
-    # Display the output table on the right side with pagination
+    # Display the output table on the right side
     st.sidebar.header("Output Table")
-    page_number = st.sidebar.number_input('Select Page', min_value=1, max_value=(len(output_df) // 10) + 1, value=1)
-    start_idx = (page_number - 1) * 10
-    end_idx = min(start_idx + 10, len(output_df))
-
-    st.sidebar.table(output_df[start_idx:end_idx])
+    st.sidebar.table(output_df)
+    st.table(output_df)  # Display output table next to input fields
 
 if st.sidebar.button('Clear'):
     # Clear the input fields
