@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[12]:
+# In[13]:
 
 
 import streamlit as st
@@ -64,9 +64,13 @@ if st.sidebar.button('Apply'):
     # Process the inputs and run your model
     output_df = get_relevancy_score(job_title, skills, certification, experience)
 
-    # Display the output table on the right side
+    # Display the output table on the right side with pagination
     st.sidebar.header("Output Table")
-    st.sidebar.table(output_df)
+    page_number = st.sidebar.number_input('Select Page', min_value=1, max_value=(len(output_df) // 10) + 1, value=1)
+    start_idx = (page_number - 1) * 10
+    end_idx = min(start_idx + 10, len(output_df))
+
+    st.sidebar.table(output_df[start_idx:end_idx])
 
 if st.sidebar.button('Clear'):
     # Clear the input fields
