@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[8]:
+# In[11]:
 
 
 import streamlit as st
@@ -42,21 +42,21 @@ def get_relevancy_score(job_title, skills, certification, experience):
     # Create a vector from the input
     input_features = [job_title, skills, certification, experience]
     input_vector = vectorizer.transform(input_features).toarray()
-    
-    # Compute the cosine similarity with the model
-    similarity = model.dot(input_vector.T)
-    
-    # Sort the candidates by descending order of similarity
-    sorted_indices = similarity.argsort(axis=0)[::-1]
-    sorted_similarity = similarity[sorted_indices]
-    
-    # Format the output as a dataframe with candidate name, email and relevancy score
+
+    # Predict the scores using the model
+    scores = model.predict(input_vector)
+
+    # Sort the candidates by descending order of scores
+    sorted_indices = scores.argsort()[::-1]
+    sorted_scores = scores[sorted_indices]
+
+    # Format the output as a dataframe with candidate name, email, and relevancy score
     output = pd.DataFrame()
     output['Candidate Name'] = df['Candidate Name'][sorted_indices].squeeze()
     output['Email ID'] = df['Email ID'][sorted_indices].squeeze()
-    output['Relevancy Score'] = (sorted_similarity * 100).round(2).squeeze()
+    output['Relevancy Score'] = (sorted_scores * 100).round(2).squeeze()
     output['Relevancy Score'] = output['Relevancy Score'].apply(lambda x: f'{x:.2f}%')
-    
+
     return output
 
 # Create your buttons
