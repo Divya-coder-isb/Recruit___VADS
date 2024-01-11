@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[11]:
+# In[12]:
 
 
 import streamlit as st
@@ -29,9 +29,9 @@ logo = Image.open(requests.get('https://raw.githubusercontent.com/Divya-coder-is
 
 # Display the image and logo
 st.image(image, use_column_width=True)
-st.image(logo, use_column_width=True)
 
-# Create your input fields
+# Create your input fields on the left side
+st.sidebar.header("Input Fields")
 job_title = st.sidebar.text_input('Job Title')
 skills = st.sidebar.text_input('Skills')
 experience = st.sidebar.text_input('Experience')
@@ -64,8 +64,9 @@ if st.sidebar.button('Apply'):
     # Process the inputs and run your model
     output_df = get_relevancy_score(job_title, skills, certification, experience)
 
-    # Display the output table
-    st.table(output_df)
+    # Display the output table on the right side
+    st.sidebar.header("Output Table")
+    st.sidebar.table(output_df)
 
 if st.sidebar.button('Clear'):
     # Clear the input fields
