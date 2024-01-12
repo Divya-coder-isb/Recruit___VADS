@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[22]:
+# In[23]:
 
 
 # Import the required libraries
@@ -46,9 +46,8 @@ def get_relevancy_score(role, skills, experience, certification):
     output = pd.DataFrame()
     output['Candidate Name'] = data['Candidate Name'][sorted_indices].squeeze()
     output['Email ID'] = data['Email ID'][sorted_indices].squeeze()
-    output['Relevancy Score'] = (sorted_similarity * 100).round(2).squeeze()
-    output['Relevancy Score'] = output['Relevancy Score'].astype(str) + '%'
-
+    output['Relevancy Score'] = (sorted_similarity * 100).round(2)
+    
     print("Debug: Output DataFrame:")
     print(output)
     return output
