@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[56]:
+# In[57]:
 
 
 # Import the required libraries
@@ -64,8 +64,10 @@ st.markdown(
 
 # Create a container for the input fields in the left column with styling
 with st.container():
-    st.markdown('<div class="css-1q0z6kh">Role:</div>', unsafe_allow_html=True)
+    # Debugging prints
+    st.write("Before role text_input:", role)
     role = st.text_input("Enter the desired role", value=role)
+    st.write("After role text_input:", role)
     
     st.markdown('<div class="css-1q0z6kh">Skills:</div>', unsafe_allow_html=True)
     skills = st.text_input("Enter the relevant skills", value=skills)
