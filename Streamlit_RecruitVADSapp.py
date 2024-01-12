@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[48]:
+# In[49]:
 
 
 # Import the required libraries
@@ -40,14 +40,20 @@ def get_relevancy_score(row):
     return score
 
 # Display the image on top of the page with increased width
-st.image(image_url, use_column_width= True)
+image_width = 600  # Adjust the width according to your preference
+st.markdown(
+    f'<img src="{image_url}" alt="image" style="width:{image_width}px;height:auto;">',
+    unsafe_allow_html=True
+)
 
 # Create a two-column layout for the input and output fields
 col1, col2 = st.columns(2)
 
-# Set the width of each column to half of the image width
-col1.width = image_width // 2
-col2.width = image_width // 2
+# Adjust the width of each column
+col1_width = image_width // 2
+col2_width = image_width // 2
+col1.width = col1_width
+col2.width = col2_width
 
 # Create the input fields in the left column
 role = col1.text_input("Role")
@@ -75,7 +81,7 @@ if apply_button:
         # Convert to percentage with 2 decimal places
         output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
         # Display all the records
-        output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]])
+        output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
