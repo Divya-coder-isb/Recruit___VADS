@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[67]:
+# In[69]:
 
 
 # Import the required libraries
@@ -62,7 +62,7 @@ experience = col1.text_input("Experience")
 certification = col1.text_input("Certification")
 
 # Create the output field in the right column
-output_container = col2.empty()
+output_container = col2.container()
 
 # Create the apply and clear buttons below the columns
 apply_button = st.button("Apply", key="apply_button")
@@ -81,7 +81,7 @@ if apply_button:
         # Convert to percentage with 2 decimal places
         output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
         # Display all the records in a custom scrollable container
-        with output_container.beta_container():
+        with output_container:
             st.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
     except Exception as e:
         st.error(f"An error occurred: {e}")
