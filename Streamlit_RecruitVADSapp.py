@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
+# In[5]:
 
 
 # Import the required libraries
@@ -41,6 +41,7 @@ def get_relevancy_score(row):
     certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
     # Concatenate the candidate's text
     candidate_text = " ".join([job_title, skills, experience, certification])
+    
     # Vectorize the candidate's text using the Modified Resume Data
     candidate_vector = vectorizer.transform([candidate_text])
     
@@ -51,8 +52,11 @@ def get_relevancy_score(row):
     # Calculate the cosine similarity between the candidate and user vectors
     cosine_sim = cosine_similarity(candidate_vector, input_vector)
     
+    # Reshape the cosine similarity matrix to a 1D array
+    cosine_sim = cosine_sim.flatten()
+    
     # Use the trained model to predict the relevancy score
-    relevancy_score = model.predict(cosine_sim)[0]
+    relevancy_score = model.predict([cosine_sim])[0]
     
     # Clip the score to the range [0, 100]
     relevancy_score = np.clip(relevancy_score, 0, 100)
