@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[49]:
+# In[50]:
 
 
 # Import the required libraries
@@ -40,7 +40,7 @@ def get_relevancy_score(row):
     return score
 
 # Display the image on top of the page with increased width
-image_width = 600  # Adjust the width according to your preference
+image_width = 1000  # Adjust the width according to your preference
 st.markdown(
     f'<img src="{image_url}" alt="image" style="width:{image_width}px;height:auto;">',
     unsafe_allow_html=True
