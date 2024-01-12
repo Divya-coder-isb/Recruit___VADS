@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[16]:
+# In[17]:
 
 
 # Import the required libraries
@@ -65,9 +65,10 @@ def get_relevancy_score(row):
     # Vectorize the candidate's text
     candidate_vector = vectorizer.transform([candidate_text])
     # Calculate the cosine similarity between the user's vector and the candidate's vector
-    similarity = cosine_similarity(user_vector, candidate_vector)[0][0]
+    similarity = cosine_similarity(user_vector, candidate_vector.reshape(1, -1))[0][0]
     # Return the similarity score
     return similarity
+
 
 # Define the logic for the buttons
 if apply_button:
