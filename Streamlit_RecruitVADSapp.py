@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[27]:
+# In[28]:
 
 
 # Import the required libraries
@@ -46,43 +46,25 @@ certification = col1.text_input("Certification")
 # Create the output field in the right column
 output_table = col2.empty()
 
-# Define user_vector globally
-user_vector = None
-
-# Define a function to calculate the relevancy score
-def get_relevancy_score(row):
-    global user_vector  # Access the global variable
-    # Extract the candidate's information from the row
-    job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
-    skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
-    experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
-    certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
-    # Concatenate the candidate's text
-    candidate_text = " ".join([job_title, skills, experience, certification])
-    # Vectorize the candidate's text
+# Define a function to calculate the cosine similarity
+def get_cosine_similarity(user_text, candidate_text):
+    user_vector = vectorizer.transform([user_text])
     candidate_vector = vectorizer.transform([candidate_text])
-    # Ensure that both vectors have the same number of columns
-    if user_vector.shape[1] > candidate_vector.shape[1]:
-        candidate_vector = scipy.sparse.hstack((candidate_vector, scipy.sparse.csr_matrix((1, user_vector.shape[1] - candidate_vector.shape[1]))))
-    elif user_vector.shape[1] < candidate_vector.shape[1]:
-        user_vector = scipy.sparse.hstack((user_vector, scipy.sparse.csr_matrix((1, candidate_vector.shape[1] - user_vector.shape[1]))))
-    # Calculate the cosine similarity between the user's vector and the candidate's vector
     similarity = cosine_similarity(user_vector, candidate_vector)[0][0]
-    # Return the similarity score
     return similarity
-
 
 # Define the logic for the buttons
 if st.button("Apply"):
     try:
         # Concatenate the user's text
         user_text = " ".join([role, skills, experience, certification])
-        # Vectorize the user's input
-        user_vector = vectorizer.transform([user_text])
         # Apply the function to the DataFrame
-        data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
+        data['Cosine Similarity'] = data.apply(lambda row: get_cosine_similarity(user_text, " ".join([str(row["Role"]), str(row["Skills"]), str(row["Experience"]), str(row["Certification"])])), axis=1)
+        # Extract the relevant columns for prediction
+        prediction_features = data[['sorted_skills', 'Certification', 'Experience', 'Cosine Similarity']]
+        X_pred = vectorizer.transform(prediction_features.astype(str).agg(' '.join, axis=1))
         # Predict the relevancy score using the trained model
-        data['Relevancy Score'] = model.predict(data['Relevancy Score'].values.reshape(-1, 1))
+        data['Relevancy Score'] = model.predict(X_pred)
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Convert to percentage with 2 decimal places
