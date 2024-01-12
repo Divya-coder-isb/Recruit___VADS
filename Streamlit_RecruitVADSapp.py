@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[25]:
+# In[27]:
 
 
 # Import the required libraries
@@ -61,10 +61,16 @@ def get_relevancy_score(row):
     candidate_text = " ".join([job_title, skills, experience, certification])
     # Vectorize the candidate's text
     candidate_vector = vectorizer.transform([candidate_text])
+    # Ensure that both vectors have the same number of columns
+    if user_vector.shape[1] > candidate_vector.shape[1]:
+        candidate_vector = scipy.sparse.hstack((candidate_vector, scipy.sparse.csr_matrix((1, user_vector.shape[1] - candidate_vector.shape[1]))))
+    elif user_vector.shape[1] < candidate_vector.shape[1]:
+        user_vector = scipy.sparse.hstack((user_vector, scipy.sparse.csr_matrix((1, candidate_vector.shape[1] - user_vector.shape[1]))))
     # Calculate the cosine similarity between the user's vector and the candidate's vector
     similarity = cosine_similarity(user_vector, candidate_vector)[0][0]
     # Return the similarity score
     return similarity
+
 
 # Define the logic for the buttons
 if st.button("Apply"):
