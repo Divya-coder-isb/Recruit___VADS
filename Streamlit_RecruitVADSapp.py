@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[72]:
+# In[73]:
 
 
 # Import the required libraries
@@ -58,7 +58,7 @@ col2.width = col2_width
 # Set the background style for the input container in the left column
 input_container_style = """
     <style>
-        div.stTextInput, div.stTextArea {
+        div.input-container {
             background-color: rgb(221, 221, 221);
             border: 1px dotted black;
             border-radius: 10px;
@@ -70,12 +70,11 @@ input_container_style = """
 st.markdown(input_container_style, unsafe_allow_html=True)
 
 # Create the input fields within a container in the left column
-with col1:
-    with st.container():
-        role = st.text_input("Role")
-        skills = st.text_input("Skills")
-        experience = st.text_input("Experience")
-        certification = st.text_input("Certification")
+with col1.container() as input_container:
+    role = st.text_input("Role")
+    skills = st.text_input("Skills")
+    experience = st.text_input("Experience")
+    certification = st.text_input("Certification")
 
 # Create the output field in the right column
 output_container = col2.container()
