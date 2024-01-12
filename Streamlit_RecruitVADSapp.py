@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[9]:
+# In[10]:
 
 
 # Import the required libraries
@@ -49,14 +49,11 @@ def get_relevancy_score(row):
     input_text = " ".join([role, skills, experience, certification])
     input_vector = vectorizer.transform([input_text])
 
-    # Calculate the cosine similarity between the candidate and user vectors
-    cosine_sim = cosine_similarity(candidate_vector, input_vector)
+    # Predict the relevancy score using the model
+    prediction = model.predict(cosine_similarity(candidate_vector, input_vector))
 
-    # Use the decision function of the model
-    decision_function = model.decision_function(cosine_sim.flatten().reshape(1, -1))
-
-    # Scale the decision function result to [0, 100]
-    relevancy_score = (decision_function + 1) * 50
+    # Scale the prediction to [0, 100]
+    relevancy_score = (prediction + 1) * 50
 
     # Clip the score to the range [0, 100]
     relevancy_score = np.clip(relevancy_score, 0, 100)
