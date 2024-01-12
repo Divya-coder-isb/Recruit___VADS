@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[34]:
+# In[35]:
 
 
 # Import the required libraries
@@ -68,11 +68,9 @@ if apply_button:
     try:
         # Apply the function to the DataFrame
         data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
-        # Convert to percentage with 2 decimal places
-        data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))  
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
-        # Convert the 'Relevancy Score' column back to string type with percentage sign
+        # Convert to percentage with 2 decimal places
         output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x))
         # Display all the records
         output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]])
