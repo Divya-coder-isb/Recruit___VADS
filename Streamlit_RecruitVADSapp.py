@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[28]:
+# In[29]:
 
 
 # Import the required libraries
@@ -21,14 +21,7 @@ model = pickle.loads(requests.get(model_url).content)
 vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
 # Define a function to calculate the relevancy score
-def get_relevancy_score(row):
-    # Extract the candidate's information from the row
-    job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
-    skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
-    experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
-    certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
-    # Concatenate the input fields into a single string
-    input_text = " ".join([job_title, skills, experience, certification])
+def get_relevancy_score(input_text):
     # Vectorize the input text using the vectorizer
     input_vector = vectorizer.transform([input_text])
     # Predict the relevancy score using the model
@@ -62,8 +55,10 @@ clear_button = st.button("Clear")
 # Define the logic for the buttons
 if apply_button:
     try:
+        # Concatenate the input fields into a single string
+        input_text = " ".join([role, skills, experience, certification])
         # Apply the function to the DataFrame
-        data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
+        data['Relevancy Score'] = data.apply(lambda row: get_relevancy_score(input_text), axis=1)
         # Convert to percentage with 2 decimal places
         data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))  
         # Sort the DataFrame by the relevancy score
