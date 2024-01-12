@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[5]:
+# In[6]:
 
 
 # Import the required libraries
@@ -9,6 +9,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
+import scipy
 
 # Load the data and the model from the given paths
 data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
@@ -52,6 +53,24 @@ clear_button = st.button("Clear")
 # Display the message below the Apply button
 st.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
 
+# Define a function to calculate the relevancy score
+def get_relevancy_score(row):
+    # Extract the candidate's information from the row
+    job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
+    skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
+    experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
+    certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
+    # Concatenate the candidate's text
+    candidate_text = " ".join([job_title, skills, experience, certification])
+    # Vectorize the candidate's text
+    candidate_vector = vectorizer.transform([candidate_text])
+    # Concatenate the user's vector and the candidate's vector
+    input_vector = scipy.sparse.hstack((user_vector, candidate_vector))
+    # Predict the relevancy score using the trained model
+    score = model.predict(input_vector)[0]
+    # Return the score
+    return score
+
 # Define the logic for the buttons
 if apply_button:
     try:
@@ -59,23 +78,6 @@ if apply_button:
         user_text = " ".join([role, skills, experience, certification])
         # Vectorize the user's input
         user_vector = vectorizer.transform([user_text])
-        
-        # Define a function to calculate the relevancy score
-        def get_relevancy_score(row):
-            # Extract the candidate's information from the row
-            job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
-            skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
-            experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
-            certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
-            # Concatenate the candidate's text
-            candidate_text = " ".join([job_title, skills, experience, certification])
-            # Vectorize the candidate's text
-            candidate_vector = vectorizer.transform([candidate_text])
-            # Predict the relevancy score using the trained model
-            score = model.predict(candidate_vector)[0]
-            # Return the score
-            return score
-
         # Apply the function to the DataFrame
         data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
         # Sort the DataFrame by the relevancy score
