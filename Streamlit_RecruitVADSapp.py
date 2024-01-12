@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[17]:
+# In[20]:
 
 
 # Import the required libraries
@@ -21,12 +21,12 @@ model = pickle.loads(requests.get(model_url).content)
 vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
 # Define a function that takes the input from the UI and returns the relevancy score
-def get_relevancy_score(job_title, skills, certification, experience):
+def get_relevancy_score(role, skills, experience, certification):
     print("Debug: Inside get_relevancy_score function")
-    print(f"Debug: Input values - Job Title: {job_title}, Skills: {skills}, Certification: {certification}, Experience: {experience}")
+    print(f"Debug: Input values - Role: {role}, Skills: {skills}, Experience: {experience}, Certification: {certification}")
 
     # Create a vector from the input
-    input_features = [job_title, skills, certification, experience]
+    input_features = [role, skills, experience, certification]
     input_vector = vectorizer.transform(input_features).toarray()
     
     # Compute the cosine similarity with the model
@@ -56,7 +56,7 @@ col1, col2 = st.columns(2)
 # Create the input fields in the left column
 with col1:
     st.header("Input Fields")
-    job_title = st.text_input("Job Title")
+    role = st.text_input("Role")
     skills = st.text_input("Skills")
     experience = st.text_input("Experience")
     certification = st.text_input("Certification")
@@ -74,7 +74,7 @@ clear_button = st.button("Clear")
 if apply_button:
     try:
         # Use lambda function to unpack the row into individual arguments
-        data["Relevancy Score"] = data.apply(lambda row: get_relevancy_score(row['Job Title'], row['Skills'], row['Certification'], row['Experience']), axis=1)
+        data["Relevancy Score"] = data.apply(lambda row: get_relevancy_score(row['Role'], row['Skills'], row['Experience'], row['Certification']), axis=1)
         data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))  # Convert to percentage with 2 decimal places
         data = data.sort_values(by="Relevancy Score", ascending=False)
         # Display all the records
@@ -83,7 +83,7 @@ if apply_button:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
 elif clear_button:
-    job_title = ""
+    role = ""
     skills = ""
     experience = ""
     certification = ""
