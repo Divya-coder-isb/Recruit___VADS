@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[27]:
+# In[28]:
 
 
 # Import the required libraries
@@ -62,10 +62,12 @@ clear_button = st.button("Clear")
 # Define the logic for the buttons
 if apply_button:
     try:
-        # Use lambda function to unpack the row into individual arguments
-        output_df = data.apply(get_relevancy_score, axis=1)
-        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x[0]))  # Convert to percentage with 2 decimal places
-        output_df = output_df.sort_values(by="Relevancy Score", ascending=False)
+        # Apply the function to the DataFrame
+        data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
+        # Convert to percentage with 2 decimal places
+        data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))  
+        # Sort the DataFrame by the relevancy score
+        output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Display all the records
         output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]])
     except Exception as e:
