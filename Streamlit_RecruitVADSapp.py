@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[5]:
+# In[6]:
 
 
 # Import the required libraries
@@ -58,8 +58,14 @@ if apply_button:
     data["Relevancy Score"] = data.apply(lambda row: get_relevancy_score(job_title, skills, experience, certification), axis=1)
     data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))  # Convert to percentage with 2 decimal places
     data = data.sort_values(by="Relevancy Score", ascending=False)
-    start_index = st.number_input("Start index", min_value=0, max_value=len(data)-1, value=0)
-    end_index = st.number_input("End index", min_value=0, max_value=len(data)-1, value=10)
+    # Calculate the number of pages
+    num_pages = len(data) // 10 + (1 if len(data) % 10 != 0 else 0)
+    # Create a select box for the page number
+    page_number = st.selectbox("Page number", list(range(1, num_pages+1)))
+    # Calculate the start and end indices for the records to display
+    start_index = (page_number - 1) * 10
+    end_index = start_index + 10
+    # Display the records for the selected page
     output_table.table(data[["Candidate Name", "Email ID", "Relevancy Score"]].iloc[start_index:end_index])
 elif clear_button:
     job_title = ""
