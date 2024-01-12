@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[47]:
+# In[49]:
 
 
 # Import the required libraries
@@ -60,13 +60,20 @@ if apply_button:
         input_vector = vectorizer.transform([input_text])
 
         # Use the model to predict the relevancy score
-        predicted_scores = model.predict(input_vector)
+        predicted_score = model.predict(input_vector)[0]
 
-        # Assign predicted scores to the "Relevancy Score" column
-        data['Relevancy Score'] = predicted_scores
+        # Create a new DataFrame with the input and predicted score
+        output_df = pd.DataFrame({
+            "Candidate Name": ["Input"],
+            "Email ID": ["Input"],
+            "Relevancy Score": [predicted_score]
+        })
+
+        # Concatenate the new DataFrame with the original data
+        output_df = pd.concat([output_df, data], ignore_index=True)
 
         # Sort the DataFrame by the relevancy score
-        output_df = data.sort_values(by="Relevancy Score", ascending=False)
+        output_df = output_df.sort_values(by="Relevancy Score", ascending=False)
 
         # Convert to percentage with 2 decimal places
         output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x * 100))
