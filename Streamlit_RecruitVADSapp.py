@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[47]:
+# In[48]:
 
 
 # Import the required libraries
@@ -40,8 +40,7 @@ def get_relevancy_score(row):
     return score
 
 # Display the image on top of the page with increased width
-image_width = 15  
-st.image(image_url, use_column_width=image_width)
+st.image(image_url, use_column_width= True)
 
 # Create a two-column layout for the input and output fields
 col1, col2 = st.columns(2)
