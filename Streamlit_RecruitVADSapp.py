@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[74]:
+# In[75]:
 
 
 # Import the required libraries
@@ -55,36 +55,21 @@ col2_width = image_width // 2
 col1.width = col1_width
 col2.width = col2_width
 
-# Set the background style for the input container in the left column
-input_container_style = """
-    <style>
-        div#input-container {
-            background-color: rgb(221, 221, 221);
-            border: 1px dotted black;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-    </style>
-"""
-st.markdown(input_container_style, unsafe_allow_html=True)
-
-# Create the input fields within a container in the left column
-with col1.container() as input_container:
-    role = st.text_input("Role")
-    skills = st.text_input("Skills")
-    experience = st.text_input("Experience")
-    certification = st.text_input("Certification")
+# Create the input fields in the left column
+role = col1.text_input("Role")
+skills = col1.text_input("Skills")
+experience = col1.text_input("Experience")
+certification = col1.text_input("Certification")
 
 # Create the output field in the right column
-output_container = col2.container()
+output_table = col2.empty()
 
 # Create the apply and clear buttons below the columns
-apply_button = st.button("Apply", key="apply_button")
+apply_button = st.button("Apply")
 clear_button = st.button("Clear")
 
 # Display the message below the Apply button
-st.markdown("<p style='color: grey; font-style: italic;'>Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!</p>", unsafe_allow_html=True)
+st.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
 
 # Define the logic for the buttons
 if apply_button:
@@ -95,9 +80,8 @@ if apply_button:
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Convert to percentage with 2 decimal places
         output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
-        # Display all the records in a custom scrollable container
-        with output_container:
-            st.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
+        # Display all the records
+        output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
@@ -106,5 +90,5 @@ elif clear_button:
     skills = ""
     experience = ""
     certification = ""
-    output_container.empty()
+    output_table.empty()
 
