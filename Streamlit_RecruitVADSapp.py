@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[69]:
+# In[70]:
 
 
 # Import the required libraries
@@ -54,6 +54,20 @@ col1_width = image_width // 2
 col2_width = image_width // 2
 col1.width = col1_width
 col2.width = col2_width
+
+# Set the background style for input fields in the left column
+input_style = """
+    <style>
+        div.stTextArea,
+        div.stTextInput {
+            background-color: rgb(221, 221, 221);
+            border: 1px dotted black;
+            border-radius: 10px;
+            padding: 10px;
+        }
+    </style>
+"""
+st.markdown(input_style, unsafe_allow_html=True)
 
 # Create the input fields in the left column
 role = col1.text_input("Role")
