@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[19]:
+# In[24]:
 
 
 # Import the required libraries
@@ -46,15 +46,12 @@ certification = col1.text_input("Certification")
 # Create the output field in the right column
 output_table = col2.empty()
 
-# Create the apply and clear buttons below the columns
-apply_button = st.button("Apply")
-clear_button = st.button("Clear")
-
-# Display the message below the Apply button
-st.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
+# Define user_vector globally
+user_vector = None
 
 # Define a function to calculate the relevancy score
 def get_relevancy_score(row):
+    global user_vector  # Access the global variable
     # Extract the candidate's information from the row
     job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
     skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
@@ -64,17 +61,13 @@ def get_relevancy_score(row):
     candidate_text = " ".join([job_title, skills, experience, certification])
     # Vectorize the candidate's text
     candidate_vector = vectorizer.transform([candidate_text])
-    # Ensure the vectors have the same shape
-    user_vector_reshaped = user_vector.reshape(1, -1)
-    candidate_vector_reshaped = candidate_vector.reshape(1, -1)
     # Calculate the cosine similarity between the user's vector and the candidate's vector
-    similarity = cosine_similarity(user_vector_reshaped, candidate_vector_reshaped)[0][0]
+    similarity = cosine_similarity(user_vector, candidate_vector)[0][0]
     # Return the similarity score
     return similarity
 
-
 # Define the logic for the buttons
-if apply_button:
+if st.button("Apply"):
     try:
         # Concatenate the user's text
         user_text = " ".join([role, skills, experience, certification])
@@ -93,7 +86,7 @@ if apply_button:
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
-elif clear_button:
+elif st.button("Clear"):
     role = ""
     skills = ""
     experience = ""
