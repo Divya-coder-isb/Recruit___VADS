@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[58]:
+# In[59]:
 
 
 # Import the required libraries
@@ -21,6 +21,26 @@ model = pickle.loads(requests.get(model_url).content)
 vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
 from sklearn.metrics.pairwise import cosine_similarity
+
+# Initialize role
+role = ""
+
+# Define a function to calculate the relevancy score
+def get_relevancy_score(row):
+    # Extract the candidate's information from the row
+    job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
+    skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
+    experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
+    certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
+    # Concatenate the candidate's text
+    candidate_text = " ".join([job_title, skills, experience, certification])
+    # Vectorize the candidate's text and the user's input
+    candidate_vector = vectorizer.transform([candidate_text])
+    input_vector = vectorizer.transform([" ".join([role, skills, experience, certification])])
+    # Calculate the cosine similarity between the two vectors
+    score = cosine_similarity(candidate_vector, input_vector)[0][0]
+    # Return the score
+    return score
 
 # Display the image on top of the page with increased width
 image_width = 900  # Adjust the width according to your preference
@@ -48,11 +68,17 @@ st.markdown(
 # Create a container for the input fields in the left column with styling
 with st.container():
     # Debugging prints
+    st.write("Before role text_input:", role)
     role = st.text_input("Enter the desired role", value=role)
-    st.write("Role after text_input:", role)
+    st.write("After role text_input:", role)
     
+    st.markdown('<div class="css-1q0z6kh">Skills:</div>', unsafe_allow_html=True)
     skills = st.text_input("Enter the relevant skills", value=skills)
+    
+    st.markdown('<div class="css-1q0z6kh">Experience:</div>', unsafe_allow_html=True)
     experience = st.text_input("Enter the required experience", value=experience)
+    
+    st.markdown('<div class="css-1q0z6kh">Certification:</div>', unsafe_allow_html=True)
     certification = st.text_input("Enter the relevant certification", value=certification)
 
 # Create the output field in the right column
