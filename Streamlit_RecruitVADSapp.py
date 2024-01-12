@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[73]:
+# In[74]:
 
 
 # Import the required libraries
@@ -58,7 +58,7 @@ col2.width = col2_width
 # Set the background style for the input container in the left column
 input_container_style = """
     <style>
-        div.input-container {
+        div#input-container {
             background-color: rgb(221, 221, 221);
             border: 1px dotted black;
             border-radius: 10px;
