@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[6]:
+# In[7]:
 
 
 # Import the required libraries
@@ -9,7 +9,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
-import scipy
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Load the data and the model from the given paths
 data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
