@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[51]:
+# In[56]:
 
 
 # Import the required libraries
@@ -46,23 +46,38 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Create a two-column layout for the input and output fields
-col1, col2 = st.columns(2)
+# Apply custom CSS styling for the input fields
+st.markdown(
+    """
+    <style>
+        .css-1q0z6kh {
+            background: linear-gradient(to right, #f0f0f0, #d0d0d0);
+            border-radius: 10px;
+            padding: 8px;
+            box-shadow: 2px 2px 5px #888888;
+            margin-bottom: 10px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-# Adjust the width of each column
-col1_width = image_width // 2
-col2_width = image_width // 2
-col1.width = col1_width
-col2.width = col2_width
-
-# Create the input fields in the left column
-role = col1.text_input("Role")
-skills = col1.text_input("Skills")
-experience = col1.text_input("Experience")
-certification = col1.text_input("Certification")
+# Create a container for the input fields in the left column with styling
+with st.container():
+    st.markdown('<div class="css-1q0z6kh">Role:</div>', unsafe_allow_html=True)
+    role = st.text_input("Enter the desired role", value=role)
+    
+    st.markdown('<div class="css-1q0z6kh">Skills:</div>', unsafe_allow_html=True)
+    skills = st.text_input("Enter the relevant skills", value=skills)
+    
+    st.markdown('<div class="css-1q0z6kh">Experience:</div>', unsafe_allow_html=True)
+    experience = st.text_input("Enter the required experience", value=experience)
+    
+    st.markdown('<div class="css-1q0z6kh">Certification:</div>', unsafe_allow_html=True)
+    certification = st.text_input("Enter the relevant certification", value=certification)
 
 # Create the output field in the right column
-output_table = col2.empty()
+output_table = st.empty()
 
 # Create the apply and clear buttons below the columns
 apply_button = st.button("Apply")
