@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[46]:
+# In[47]:
 
 
 # Import the required libraries
@@ -60,7 +60,10 @@ if apply_button:
         input_vector = vectorizer.transform([input_text])
 
         # Use the model to predict the relevancy score
-        data['Relevancy Score'] = model.predict(input_vector)
+        predicted_scores = model.predict(input_vector)
+
+        # Assign predicted scores to the "Relevancy Score" column
+        data['Relevancy Score'] = predicted_scores
 
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
