@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[41]:
+# In[42]:
 
 
 # Import the required libraries
@@ -9,7 +9,6 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
-from sklearn.metrics.pairwise import cosine_similarity
 
 # Load the data and the model from the given paths
 data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
@@ -46,31 +45,25 @@ certification = col1.text_input("Certification")
 # Create the output field in the right column
 output_table = col2.empty()
 
-# Define a function to calculate the cosine similarity
-def get_cosine_similarity(user_text, candidate_text):
-    user_vector = vectorizer.transform([user_text])
-    candidate_vector = vectorizer.transform([candidate_text])
-    similarity = cosine_similarity(user_vector, candidate_vector)[0][0]
-    return similarity
-
 # Define the logic for the buttons
 if st.button("Apply"):
     try:
-        # Concatenate the user's text
-        user_text = " ".join([role, skills, experience, certification])
-        # Apply the function to the DataFrame
-        data['Cosine Similarity'] = data.apply(lambda row: get_cosine_similarity(user_text, " ".join([str(row["Role"]), str(row["Skills"]), str(row["Experience"]), str(row["Certification"])])), axis=1)
-        # Extract the relevant columns for prediction
-        prediction_features = data[['sorted_skills', 'Certification', 'Experience', 'Cosine Similarity']]
-        X_pred = vectorizer.transform(prediction_features.astype(str).agg(' '.join, axis=1))
+        # Prepare input data for prediction
+        user_data = pd.DataFrame({
+            'Role': [role],
+            'Skills': [skills],
+            'Experience': [experience],
+            'Certification': [certification]
+        })
+
+        # Vectorize the input data
+        X_pred = vectorizer.transform(user_data.astype(str).agg(' '.join, axis=1))
+
         # Predict the relevancy score using the trained model
-        data['Relevancy Score'] = model.predict(X_pred)
-        # Sort the DataFrame by the relevancy score
-        output_df = data.sort_values(by="Relevancy Score", ascending=False)
-        # Convert to percentage with 2 decimal places
-        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
-        # Display all the records
-        output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
+        user_data['Relevancy Score'] = model.predict(X_pred)
+
+        # Display the results
+        output_table.table(user_data[["Relevancy Score"]])
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
