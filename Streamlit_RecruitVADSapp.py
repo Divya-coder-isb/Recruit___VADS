@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[24]:
+# In[25]:
 
 
 # Import the required libraries
@@ -47,7 +47,7 @@ def get_relevancy_score(role, skills, experience, certification):
     output['Candidate Name'] = data['Candidate Name'][sorted_indices].squeeze()
     output['Email ID'] = data['Email ID'][sorted_indices].squeeze()
     output['Relevancy Score'] = (sorted_similarity * 100).round(2)
-    
+
     print("Debug: Output DataFrame:")
     print(output)
     return output
@@ -80,7 +80,7 @@ if apply_button:
     try:
         # Use lambda function to unpack the row into individual arguments
         output_df = data.apply(lambda row: get_relevancy_score(row['Role'], row['Skills'], row['Experience'], row['Certification']), axis=1)
-        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x))  # Convert to percentage with 2 decimal places
+        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x[0]))  # Convert to percentage with 2 decimal places
         output_df = output_df.sort_values(by="Relevancy Score", ascending=False)
         # Display all the records
         output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]])
