@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[37]:
+# In[39]:
 
 
 # Import the required libraries
@@ -10,9 +10,6 @@ import pandas as pd
 import pickle
 import requests
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.linear_model import LinearRegression
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import accuracy_score, precision_score, confusion_matrix
 
 # Load the data and the model from the given paths
 data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
@@ -64,7 +61,7 @@ if st.button("Apply"):
         # Apply the function to the DataFrame
         data['Cosine Similarity'] = data.apply(lambda row: get_cosine_similarity(user_text, " ".join([str(row["Role"]), str(row["Skills"]), str(row["Experience"]), str(row["Certification"])])), axis=1)
         # Extract the relevant columns for prediction
-        prediction_features = data[['Role', 'Skills', 'Experience', 'Certification', 'Cosine Similarity']]
+        prediction_features = data[['sorted_skills', 'Certification', 'Experience', 'Cosine Similarity']]
         X_pred = vectorizer.transform(prediction_features.astype(str).agg(' '.join, axis=1))
         # Predict the relevancy score using the trained model
         data['Relevancy Score'] = model.predict(X_pred)
@@ -74,16 +71,6 @@ if st.button("Apply"):
         output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
         # Display all the records
         output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
-        
-        # Evaluate the model performance
-        threshold = 0.5
-        y_pred_binary = [1 if x >= threshold else 0 for x in data['Relevancy Score']]
-        y_true_binary = [1 if x >= threshold else 0 for x in data['Actual Relevancy Score']]
-        accuracy = accuracy_score(y_true_binary, y_pred_binary) * 100
-        precision = precision_score(y_true_binary, y_pred_binary) * 100
-        st.success(f"Accuracy: {accuracy:.2f}%")
-        st.success(f"Precision: {precision:.2f}%")
-        
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
@@ -93,20 +80,4 @@ elif st.button("Clear"):
     experience = ""
     certification = ""
     output_table.empty()
-elif st.button("Save Model and Vectorizer"):
-    # Save the model and vectorizer
-    with open("Recruit_VADS_model.pkl", 'wb') as model_file:
-        pickle.dump(model, model_file)
-
-    with open("Tfidf_Vectorizer.pkl", 'wb') as vectorizer_file:
-        pickle.dump(vectorizer, vectorizer_file)
-
-    st.success("Model and vectorizer saved successfully!")
-
-elif st.button("Load Model and Vectorizer"):
-    # Load the model and vectorizer
-    loaded_model = pickle.load(open("Recruit_VADS_model.pkl", 'rb'))
-    loaded_vectorizer = pickle.load(open("Tfidf_Vectorizer.pkl", 'rb'))
-
-    st.success("Model and vectorizer loaded successfully!")
 
