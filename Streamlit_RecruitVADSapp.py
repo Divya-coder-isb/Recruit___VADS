@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
+# In[5]:
 
 
 # Import the required libraries
@@ -9,7 +9,6 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
-from sklearn.metrics.pairwise import cosine_similarity
 
 # Load the data and the model from the given paths
 data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
@@ -60,8 +59,25 @@ if apply_button:
         user_text = " ".join([role, skills, experience, certification])
         # Vectorize the user's input
         user_vector = vectorizer.transform([user_text])
-        # Predict the relevancy score using the trained model
-        data['Relevancy Score'] = model.predict(user_vector)
+        
+        # Define a function to calculate the relevancy score
+        def get_relevancy_score(row):
+            # Extract the candidate's information from the row
+            job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
+            skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
+            experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
+            certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
+            # Concatenate the candidate's text
+            candidate_text = " ".join([job_title, skills, experience, certification])
+            # Vectorize the candidate's text
+            candidate_vector = vectorizer.transform([candidate_text])
+            # Predict the relevancy score using the trained model
+            score = model.predict(candidate_vector)[0]
+            # Return the score
+            return score
+
+        # Apply the function to the DataFrame
+        data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Convert to percentage with 2 decimal places
