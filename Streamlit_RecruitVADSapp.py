@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[42]:
+# In[43]:
 
 
 # Import the required libraries
@@ -20,21 +20,12 @@ data = pd.read_csv(data_url)
 model = pickle.loads(requests.get(model_url).content)
 vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
-# Display the image on top of the page with increased width
-image_width = 900  # Adjust the width according to your preference
-st.markdown(
-    f'<img src="{image_url}" alt="image" style="width:{image_width}px;height:auto;">',
-    unsafe_allow_html=True
-)
-
 # Create a two-column layout for the input and output fields
 col1, col2 = st.columns(2)
 
-# Adjust the width of each column
-col1_width = image_width // 2
-col2_width = image_width // 2
-col1.width = col1_width
-col2.width = col2_width
+# Display the image on top of the page with increased width
+image_width = 900  # Adjust the width according to your preference
+col1.image(image_url, use_column_width=True)
 
 # Create the input fields in the left column
 role = col1.text_input("Role")
@@ -45,29 +36,35 @@ certification = col1.text_input("Certification")
 # Create the output field in the right column
 output_table = col2.empty()
 
+# Create the apply and clear buttons below the columns
+apply_button = col1.button("Apply")
+clear_button = col1.button("Clear")
+
+# Display the message below the Apply button
+col1.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
+
 # Define the logic for the buttons
-if st.button("Apply"):
+if apply_button:
     try:
-        # Prepare input data for prediction
-        user_data = pd.DataFrame({
-            'Role': [role],
-            'Skills': [skills],
-            'Experience': [experience],
-            'Certification': [certification]
-        })
+        # Vectorize the user's input
+        input_text = " ".join([role, skills, experience, certification])
+        input_vector = vectorizer.transform([input_text])
 
-        # Vectorize the input data
-        X_pred = vectorizer.transform(user_data.astype(str).agg(' '.join, axis=1))
+        # Use the model to predict the relevancy score
+        data['Relevancy Score'] = model.predict_proba(input_vector)[:, 1]
 
-        # Predict the relevancy score using the trained model
-        user_data['Relevancy Score'] = model.predict(X_pred)
+        # Sort the DataFrame by the relevancy score
+        output_df = data.sort_values(by="Relevancy Score", ascending=False)
 
-        # Display the results
-        output_table.table(user_data[["Relevancy Score"]])
+        # Convert to percentage with 2 decimal places
+        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x * 100))
+
+        # Display all the records
+        output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
-elif st.button("Clear"):
+elif clear_button:
     role = ""
     skills = ""
     experience = ""
