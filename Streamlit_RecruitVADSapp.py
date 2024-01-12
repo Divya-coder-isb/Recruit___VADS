@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[50]:
+# In[52]:
 
 
 # Import the required libraries
@@ -10,31 +10,48 @@ import pandas as pd
 import pickle
 import requests
 
-# Load the data and the model from the given paths
-data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
-image_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/RecruitVADSlogo.jpg?raw=true"
-model_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Recruit_VADS_model.pkl?raw=true"
-vectorizer_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Tfidf_Vectorizer.pkl?raw=true"
+# Define a function to load the data and the model
+def load_data_and_model():
+    # Load the data and the model from the given paths
+    data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
+    image_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/RecruitVADSlogo.jpg?raw=true"
+    model_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Recruit_VADS_model.pkl?raw=true"
+    vectorizer_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Tfidf_Vectorizer.pkl?raw=true"
 
-data = pd.read_csv(data_url)
-model = pickle.loads(requests.get(model_url).content)
-vectorizer = pickle.loads(requests.get(vectorizer_url).content)
+    data = pd.read_csv(data_url)
+    model = pickle.loads(requests.get(model_url).content)
+    vectorizer = pickle.loads(requests.get(vectorizer_url).content)
+    image = requests.get(image_url).content
+    return data, model, vectorizer, image
 
-# Display the image on top of the page with increased width
-image_width = 900  # Adjust the width according to your preference
-st.markdown(
-    f'<img src="{image_url}" alt="image" style="width:{image_width}px;height:auto;">',
-    unsafe_allow_html=True
-)
+# Load the data and the model using the function
+data, model, vectorizer, image = load_data_and_model()
+
+
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Define a function to calculate the relevancy score
+def get_relevancy_score(row):
+    # Extract the candidate's information from the row
+    job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
+    skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
+    experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
+    certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
+    # Concatenate the candidate's text
+    candidate_text = " ".join([job_title, skills, experience, certification])
+    # Vectorize the candidate's text and the user's input
+    candidate_vector = vectorizer.transform([candidate_text])
+    input_vector = vectorizer.transform([" ".join([role, skills, experience, certification])])
+    # Calculate the cosine similarity between the two vectors
+    score = cosine_similarity(candidate_vector, input_vector)[0][0]
+    # Return the score
+    return score
+
+# Display the image on top of the page using st.image
+st.image(image, use_column_width=True)
 
 # Create a two-column layout for the input and output fields
-col1, col2 = st.columns(2)
-
-# Adjust the width of each column
-col1_width = image_width // 2
-col2_width = image_width // 2
-col1.width = col1_width
-col2.width = col2_width
+col1, col2 = st.columns([1, 1])
 
 # Create the input fields in the left column
 role = col1.text_input("Role")
@@ -49,39 +66,24 @@ output_table = col2.empty()
 apply_button = st.button("Apply")
 clear_button = st.button("Clear")
 
-# Display the message below the Apply button
-st.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
+# Display the message below the Apply button using st.success
+st.success("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
 
 # Define the logic for the buttons
 if apply_button:
     try:
-        # Vectorize the user's input
-        input_text = " ".join([role, skills, experience, certification])
-        input_vector = vectorizer.transform([input_text])
-
-        # Use the model to predict the relevancy score
-        predicted_scores = model.predict(input_vector)
-
-        # Add the input and predicted score to the DataFrame
-        input_data = pd.DataFrame({
-            "Candidate Name": ["Input"],
-            "Email ID": ["Input"],
-            "Relevancy Score": predicted_scores
-        })
-
-        output_df = pd.concat([input_data, data], ignore_index=True)
-
+        # Apply the function to the DataFrame
+        data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
         # Sort the DataFrame by the relevancy score
-        output_df = output_df.sort_values(by="Relevancy Score", ascending=False)
-
+        output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Convert to percentage with 2 decimal places
-        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: max(0, min(x, 1)) * 100)
-
+        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
         # Display all the records
         output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
     except Exception as e:
-        st.error(f"An error occurred: {e}")
-        st.text("Check the console or logs for more details.")
+        # Display the exception using st.exception and stop the execution using st.stop
+        st.exception(e)
+        st.stop()
 elif clear_button:
     role = ""
     skills = ""
