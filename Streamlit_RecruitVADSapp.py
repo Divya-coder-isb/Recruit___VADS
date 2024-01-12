@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[33]:
+# In[34]:
 
 
 # Import the required libraries
@@ -20,6 +20,8 @@ data = pd.read_csv(data_url)
 model = pickle.loads(requests.get(model_url).content)
 vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
+from sklearn.metrics.pairwise import cosine_similarity
+
 # Define a function to calculate the relevancy score
 def get_relevancy_score(row):
     # Extract the candidate's information from the row
@@ -27,13 +29,13 @@ def get_relevancy_score(row):
     skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
     experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
     certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
-    # Concatenate the candidate's text with the user's input
+    # Concatenate the candidate's text
     candidate_text = " ".join([job_title, skills, experience, certification])
-    input_text = " ".join([role, skills, experience, certification, candidate_text])
-    # Vectorize the input text using the vectorizer
-    input_vector = vectorizer.transform([input_text])
-    # Predict the relevancy score using the model
-    score = model.predict(input_vector)[0]
+    # Vectorize the candidate's text and the user's input
+    candidate_vector = vectorizer.transform([candidate_text])
+    input_vector = vectorizer.transform([" ".join([role, skills, experience, certification])])
+    # Calculate the cosine similarity between the two vectors
+    score = cosine_similarity(candidate_vector, input_vector)[0][0]
     # Return the score
     return score
 
@@ -67,7 +69,7 @@ if apply_button:
         # Apply the function to the DataFrame
         data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
         # Convert to percentage with 2 decimal places
-        data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: x*100)  
+        data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))  
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Convert the 'Relevancy Score' column back to string type with percentage sign
