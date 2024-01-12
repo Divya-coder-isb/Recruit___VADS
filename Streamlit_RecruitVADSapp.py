@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[54]:
+# In[55]:
 
 
 # Import the required libraries
@@ -10,6 +10,7 @@ import pandas as pd
 import pickle
 import requests
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 # Define a function to load the data and the model
 def load_data_and_model():
@@ -42,6 +43,8 @@ def get_relevancy_score(row):
     input_vector = vectorizer.transform([" ".join([role, skills, experience, certification])])
     # Use the trained model to predict the relevancy score
     relevancy_score = model.predict(input_vector)[0]
+    # Clip the score to the range [0, 100]
+    relevancy_score = np.clip(relevancy_score, 0, 100)
     # Return the score
     return relevancy_score
 
@@ -56,6 +59,12 @@ role = col1.text_input("Role")
 skills = col1.text_input("Skills")
 experience = col1.text_input("Experience")
 certification = col1.text_input("Certification")
+
+# Print the user's input
+st.write("Role:", role)
+st.write("Skills:", skills)
+st.write("Experience:", experience)
+st.write("Certification:", certification)
 
 # Create the output field in the right column
 output_table = col2.empty()
