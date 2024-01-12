@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[37]:
+# In[40]:
 
 
 # Import the required libraries
@@ -39,11 +39,16 @@ def get_relevancy_score(row):
     # Return the score
     return score
 
-# Display the image on top of the page
-st.image(image_url, use_column_width=True)
+# Display the image on top of the page with increased width
+image_width = 600  # Adjust the width according to your preference
+st.image(image_url, use_column_width=image_width)
 
 # Create a two-column layout for the input and output fields
 col1, col2 = st.columns(2)
+
+# Set the width of each column to half of the image width
+col1.width = image_width // 2
+col2.width = image_width // 2
 
 # Create the input fields in the left column
 role = col1.text_input("Role")
