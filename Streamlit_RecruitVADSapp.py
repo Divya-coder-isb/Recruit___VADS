@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[21]:
+# In[22]:
 
 
 # Import the required libraries
@@ -34,21 +34,21 @@ def get_relevancy_score(role, skills, experience, certification):
     # Create a vector from the input
     input_features = [role, skills, experience, certification]
     input_vector = vectorizer.transform(input_features).toarray()
-    
-    # Compute the cosine similarity with the model
-    similarity = model.dot(input_vector.T)
-    
+
+    # Predict the output using the linear regression model
+    predicted_similarity = model.predict(input_vector)
+
     # Sort the candidates by descending order of similarity
-    sorted_indices = similarity.argsort(axis=0)[::-1]
-    sorted_similarity = similarity[sorted_indices]
-    
+    sorted_indices = predicted_similarity.argsort(axis=0)[::-1]
+    sorted_similarity = predicted_similarity[sorted_indices]
+
     # Format the output as a dataframe with candidate name, email, and relevancy score
     output = pd.DataFrame()
     output['Candidate Name'] = data['Candidate Name'][sorted_indices].squeeze()
     output['Email ID'] = data['Email ID'][sorted_indices].squeeze()
     output['Relevancy Score'] = (sorted_similarity * 100).round(2).squeeze()
     output['Relevancy Score'] = output['Relevancy Score'].astype(str) + '%'
-    
+
     print("Debug: Output DataFrame:")
     print(output)
     return output
