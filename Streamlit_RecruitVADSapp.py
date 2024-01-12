@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[35]:
+# In[36]:
 
 
 # Import the required libraries
@@ -53,6 +53,7 @@ def get_cosine_similarity(user_text, candidate_text):
     similarity = cosine_similarity(user_vector, candidate_vector)[0][0]
     return similarity
 
+
 # Define the logic for the buttons
 if st.button("Apply"):
     try:
@@ -79,5 +80,10 @@ elif st.button("Clear"):
     skills = ""
     experience = ""
     certification = ""
+    # Update the input fields
+    col1.text_input("Role", value=role)
+    col1.text_input("Skills", value=skills)
+    col1.text_input("Experience", value=experience)
+    col1.text_input("Certification", value=certification)
     output_table.empty()
 
