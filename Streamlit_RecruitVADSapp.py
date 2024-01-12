@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[7]:
+# In[8]:
 
 
 # Import the required libraries
@@ -53,7 +53,7 @@ def get_relevancy_score(row):
     cosine_sim = cosine_similarity(candidate_vector, input_vector)
 
     # Use the predicted values directly
-    relevancy_score = model.predict(cosine_sim.reshape(1, -1))[0]
+    relevancy_score = model.predict(cosine_sim.flatten().reshape(1, -1))[0]
 
     # Clip the score to the range [0, 100]
     relevancy_score = np.clip(relevancy_score, 0, 100)
