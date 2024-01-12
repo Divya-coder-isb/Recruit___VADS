@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[55]:
+# In[1]:
 
 
 # Import the required libraries
@@ -13,9 +13,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 # Define a function to load the data and the model
-def load_data_and_model():
+def load_data_and_model(data_url):
     # Load the data and the model from the given paths
-    data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
     image_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/RecruitVADSlogo.jpg?raw=true"
     model_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Recruit_VADS_model.pkl?raw=true"
     vectorizer_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Tfidf_Vectorizer.pkl?raw=true"
@@ -26,8 +25,12 @@ def load_data_and_model():
     image = requests.get(image_url).content
     return data, model, vectorizer, image
 
-# Load the data and the model using the function
-data, model, vectorizer, image = load_data_and_model()
+# Modified Resume Data URL
+modified_resume_data_url = "https://github.com/Divya-coder-isb/Recruit___VADS/raw/main/Modifiedresumedata_data.csv"
+
+# Create a sidebar with an input field for the Modified Resume Data URL
+st.sidebar.header("Modified Resume Data Path")
+data, model, vectorizer, image = load_data_and_model(modified_resume_data_url)
 
 # Define a function to calculate the relevancy score
 def get_relevancy_score(row):
@@ -38,11 +41,12 @@ def get_relevancy_score(row):
     certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
     # Concatenate the candidate's text
     candidate_text = " ".join([job_title, skills, experience, certification])
-    # Vectorize the candidate's text and the user's input
+    # Vectorize the candidate's text using the Modified Resume Data
     candidate_vector = vectorizer.transform([candidate_text])
+    # Vectorize the user's input
     input_vector = vectorizer.transform([" ".join([role, skills, experience, certification])])
     # Use the trained model to predict the relevancy score
-    relevancy_score = model.predict(input_vector)[0]
+    relevancy_score = model.predict(cosine_similarity(candidate_vector, input_vector))[0]
     # Clip the score to the range [0, 100]
     relevancy_score = np.clip(relevancy_score, 0, 100)
     # Return the score
