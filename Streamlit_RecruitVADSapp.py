@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[16]:
+# In[17]:
 
 
 # Import the required libraries
@@ -73,7 +73,8 @@ clear_button = st.button("Clear")
 # Define the logic for the buttons
 if apply_button:
     try:
-        data["Relevancy Score"] = data.apply(get_relevancy_score, axis=1)
+        # Use lambda function to unpack the row into individual arguments
+        data["Relevancy Score"] = data.apply(lambda row: get_relevancy_score(row['Job Title'], row['Skills'], row['Certification'], row['Experience']), axis=1)
         data["Relevancy Score"] = data["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))  # Convert to percentage with 2 decimal places
         data = data.sort_values(by="Relevancy Score", ascending=False)
         # Display all the records
