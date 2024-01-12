@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[51]:
+# In[66]:
 
 
 # Import the required libraries
@@ -64,12 +64,14 @@ certification = col1.text_input("Certification")
 # Create the output field in the right column
 output_table = col2.empty()
 
+
+
 # Create the apply and clear buttons below the columns
-apply_button = st.button("Apply")
+apply_button = st.button("Apply", key="apply_button")
 clear_button = st.button("Clear")
 
 # Display the message below the Apply button
-st.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
+st.markdown("<p style='color: grey; font-style: italic;'>Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!</p>", unsafe_allow_html=True)
 
 # Define the logic for the buttons
 if apply_button:
