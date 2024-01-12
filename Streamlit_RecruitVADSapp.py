@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[10]:
+# In[13]:
 
 
 # Import the required libraries
@@ -23,7 +23,7 @@ vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 # Define a function to calculate the relevancy score
 def get_relevancy_score(row):
     # Extract the candidate's information from the row
-    job_title = row["Job Title"]
+    job_title = row["Role"]
     skills = row["Skills"]
     experience = row["Experience"]
     certification = row["Certification"]
