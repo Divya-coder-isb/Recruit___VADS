@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[31]:
+# In[32]:
 
 
 # Import the required libraries
@@ -27,9 +27,8 @@ def get_relevancy_score(row):
     skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
     experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
     certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
-    # Concatenate the input fields into a single string
-    candidate_text = " ".join([job_title, skills, experience, certification])
     # Concatenate the candidate's text with the user's input
+    candidate_text = " ".join([job_title, skills, experience, certification])
     input_text = " ".join([role, skills, experience, certification, candidate_text])
     # Vectorize the input text using the vectorizer
     input_vector = vectorizer.transform([input_text])
@@ -37,6 +36,7 @@ def get_relevancy_score(row):
     score = model.predict(input_vector)[0]
     # Return the score
     return score
+
 
 # Display the image on top of the page
 st.image(image_url, use_column_width=True)
