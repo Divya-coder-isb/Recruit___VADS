@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[17]:
+# In[19]:
 
 
 # Import the required libraries
@@ -64,8 +64,11 @@ def get_relevancy_score(row):
     candidate_text = " ".join([job_title, skills, experience, certification])
     # Vectorize the candidate's text
     candidate_vector = vectorizer.transform([candidate_text])
+    # Ensure the vectors have the same shape
+    user_vector_reshaped = user_vector.reshape(1, -1)
+    candidate_vector_reshaped = candidate_vector.reshape(1, -1)
     # Calculate the cosine similarity between the user's vector and the candidate's vector
-    similarity = cosine_similarity(user_vector, candidate_vector.reshape(1, -1))[0][0]
+    similarity = cosine_similarity(user_vector_reshaped, candidate_vector_reshaped)[0][0]
     # Return the similarity score
     return similarity
 
