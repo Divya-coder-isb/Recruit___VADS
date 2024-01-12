@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[20]:
+# In[21]:
 
 
 # Import the required libraries
@@ -24,6 +24,12 @@ vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 def get_relevancy_score(role, skills, experience, certification):
     print("Debug: Inside get_relevancy_score function")
     print(f"Debug: Input values - Role: {role}, Skills: {skills}, Experience: {experience}, Certification: {certification}")
+
+    # Convert input values to strings
+    role = str(role)
+    skills = str(skills)
+    experience = str(experience)
+    certification = str(certification)
 
     # Create a vector from the input
     input_features = [role, skills, experience, certification]
