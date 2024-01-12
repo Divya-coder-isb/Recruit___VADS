@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[52]:
+# In[53]:
 
 
 # Import the required libraries
@@ -9,6 +9,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Define a function to load the data and the model
 def load_data_and_model():
@@ -27,9 +28,6 @@ def load_data_and_model():
 # Load the data and the model using the function
 data, model, vectorizer, image = load_data_and_model()
 
-
-from sklearn.metrics.pairwise import cosine_similarity
-
 # Define a function to calculate the relevancy score
 def get_relevancy_score(row):
     # Extract the candidate's information from the row
@@ -42,10 +40,10 @@ def get_relevancy_score(row):
     # Vectorize the candidate's text and the user's input
     candidate_vector = vectorizer.transform([candidate_text])
     input_vector = vectorizer.transform([" ".join([role, skills, experience, certification])])
-    # Calculate the cosine similarity between the two vectors
-    score = cosine_similarity(candidate_vector, input_vector)[0][0]
+    # Use the trained model to predict the relevancy score
+    relevancy_score = model.predict(input_vector)[0]
     # Return the score
-    return score
+    return relevancy_score
 
 # Display the image on top of the page using st.image
 st.image(image, use_column_width=True)
