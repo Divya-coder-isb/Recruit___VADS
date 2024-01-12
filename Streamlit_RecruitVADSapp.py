@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[53]:
+# In[54]:
 
 
 # Import the required libraries
@@ -74,8 +74,6 @@ if apply_button:
         data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
-        # Convert to percentage with 2 decimal places
-        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
         # Display all the records
         output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
     except Exception as e:
