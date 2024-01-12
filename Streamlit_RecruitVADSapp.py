@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[25]:
+# In[26]:
 
 
 # Import the required libraries
@@ -20,37 +20,21 @@ data = pd.read_csv(data_url)
 model = pickle.loads(requests.get(model_url).content)
 vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
-# Define a function that takes the input from the UI and returns the relevancy score
-def get_relevancy_score(role, skills, experience, certification):
-    print("Debug: Inside get_relevancy_score function")
-    print(f"Debug: Input values - Role: {role}, Skills: {skills}, Experience: {experience}, Certification: {certification}")
-
-    # Convert input values to strings
-    role = str(role)
-    skills = str(skills)
-    experience = str(experience)
-    certification = str(certification)
-
-    # Create a vector from the input
-    input_features = [role, skills, experience, certification]
-    input_vector = vectorizer.transform(input_features).toarray()
-
-    # Predict the output using the linear regression model
-    predicted_similarity = model.predict(input_vector)
-
-    # Sort the candidates by descending order of similarity
-    sorted_indices = predicted_similarity.argsort(axis=0)[::-1]
-    sorted_similarity = predicted_similarity[sorted_indices]
-
-    # Format the output as a dataframe with candidate name, email, and relevancy score
-    output = pd.DataFrame()
-    output['Candidate Name'] = data['Candidate Name'][sorted_indices].squeeze()
-    output['Email ID'] = data['Email ID'][sorted_indices].squeeze()
-    output['Relevancy Score'] = (sorted_similarity * 100).round(2)
-
-    print("Debug: Output DataFrame:")
-    print(output)
-    return output
+# Define a function to calculate the relevancy score
+def get_relevancy_score(row):
+    # Extract the candidate's information from the row
+    job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
+    skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
+    experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
+    certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
+    # Concatenate the input fields into a single string
+    input_text = " ".join([job_title, skills, experience, certification])
+    # Vectorize the input text using the vectorizer
+    input_vector = vectorizer.transform([input_text])
+    # Predict the relevancy score using the model
+    score = model.predict(input_vector)[0]
+    # Return the score
+    return score
 
 # Display the image on top of the page
 st.image(image_url, use_column_width=True)
