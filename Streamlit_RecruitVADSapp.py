@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[32]:
+# In[34]:
 
 
 # Import the required libraries
@@ -61,9 +61,10 @@ if st.button("Apply"):
         # Apply the function to the DataFrame
         data['Cosine Similarity'] = data.apply(lambda row: get_cosine_similarity(user_text, " ".join([str(row["Role"]), str(row["Skills"]), str(row["Experience"]), str(row["Certification"])])), axis=1)
         # Extract the relevant columns for prediction
-        prediction_features = data[['Cosine Similarity']]
+        prediction_features = data[['Role', 'Skills', 'Experience', 'Certification', 'Cosine Similarity']]
+        X_pred = vectorizer.transform(prediction_features.astype(str).agg(' '.join, axis=1))
         # Predict the relevancy score using the trained model
-        data['Relevancy Score'] = model.predict(prediction_features)
+        data['Relevancy Score'] = model.predict(X_pred)
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Convert to percentage with 2 decimal places
