@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[10]:
+# In[11]:
 
 
 # Import the required libraries
@@ -50,7 +50,7 @@ def get_relevancy_score(row):
     input_vector = vectorizer.transform([input_text])
 
     # Predict the relevancy score using the model
-    prediction = model.predict(cosine_similarity(candidate_vector, input_vector))
+    prediction = model.predict(candidate_vector)
 
     # Scale the prediction to [0, 100]
     relevancy_score = (prediction + 1) * 50
