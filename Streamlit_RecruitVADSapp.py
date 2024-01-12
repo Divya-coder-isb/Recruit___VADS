@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[3]:
 
 
 # Import the required libraries
@@ -9,6 +9,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
+from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 # Define a function to load the data and the model
@@ -42,10 +43,20 @@ def get_relevancy_score(row):
     candidate_text = " ".join([job_title, skills, experience, certification])
     # Vectorize the candidate's text using the Modified Resume Data
     candidate_vector = vectorizer.transform([candidate_text])
+    
+    # Vectorize the user's input
+    input_text = " ".join([role, skills, experience, certification])
+    input_vector = vectorizer.transform([input_text])
+
+    # Calculate the cosine similarity between the candidate and user vectors
+    cosine_sim = cosine_similarity(candidate_vector, input_vector)
+    
     # Use the trained model to predict the relevancy score
-    relevancy_score = model.predict(candidate_vector)[0]
+    relevancy_score = model.predict(cosine_sim)[0]
+    
     # Clip the score to the range [0, 100]
     relevancy_score = np.clip(relevancy_score, 0, 100)
+    
     # Return the score
     return relevancy_score
 
