@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[10]:
+# In[11]:
 
 
 # Import the required libraries
@@ -10,7 +10,6 @@ import pandas as pd
 import pickle
 import requests
 from sklearn.metrics.pairwise import cosine_similarity
-import scipy.sparse
 
 # Load the data and the model from the given paths
 data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
@@ -65,12 +64,10 @@ def get_relevancy_score(row):
     candidate_text = " ".join([job_title, skills, experience, certification])
     # Vectorize the candidate's text
     candidate_vector = vectorizer.transform([candidate_text])
-    # Concatenate the user's vector and the candidate's vector
-    input_vector = scipy.sparse.hstack((user_vector, candidate_vector))
-    # Predict the relevancy score using the trained model
-    score = model.predict(input_vector)[0]
-    # Return the score
-    return score
+    # Calculate the cosine similarity between the user's vector and the candidate's vector
+    similarity = cosine_similarity(user_vector, candidate_vector)[0][0]
+    # Return the similarity score
+    return similarity
 
 # Define the logic for the buttons
 if apply_button:
@@ -81,6 +78,8 @@ if apply_button:
         user_vector = vectorizer.transform([user_text])
         # Apply the function to the DataFrame
         data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
+        # Predict the relevancy score using the trained model
+        data['Relevancy Score'] = model.predict(data['Relevancy Score'].values.reshape(-1, 1))
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
         # Convert to percentage with 2 decimal places
