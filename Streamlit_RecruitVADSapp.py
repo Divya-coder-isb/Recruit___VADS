@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[8]:
+# In[9]:
 
 
 # Import the required libraries
@@ -52,8 +52,11 @@ def get_relevancy_score(row):
     # Calculate the cosine similarity between the candidate and user vectors
     cosine_sim = cosine_similarity(candidate_vector, input_vector)
 
-    # Use the predicted values directly
-    relevancy_score = model.predict(cosine_sim.flatten().reshape(1, -1))[0]
+    # Use the decision function of the model
+    decision_function = model.decision_function(cosine_sim.flatten().reshape(1, -1))
+
+    # Scale the decision function result to [0, 100]
+    relevancy_score = (decision_function + 1) * 50
 
     # Clip the score to the range [0, 100]
     relevancy_score = np.clip(relevancy_score, 0, 100)
