@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[63]:
+# In[51]:
 
 
 # Import the required libraries
@@ -22,21 +22,6 @@ vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Create a container for the input fields in the left column with styling
-with st.container():
-    # Initialize variables
-    role = st.text_input("Enter the desired role", value="")
-    skills = st.text_input("Enter the relevant skills", value="")
-    experience = st.text_input("Enter the required experience", value="")
-    certification = st.text_input("Enter the relevant certification", value="")
-
-# Create the output field in the right column
-output_table = st.empty()
-
-# Create the apply and clear buttons below the columns
-apply_button = st.button("Apply")
-clear_button = st.button("Clear")
-
 # Define a function to calculate the relevancy score
 def get_relevancy_score(row):
     # Extract the candidate's information from the row
@@ -48,11 +33,40 @@ def get_relevancy_score(row):
     candidate_text = " ".join([job_title, skills, experience, certification])
     # Vectorize the candidate's text and the user's input
     candidate_vector = vectorizer.transform([candidate_text])
-    input_vector = vectorizer.transform([f"{role} {skills} {experience} {certification}"])
+    input_vector = vectorizer.transform([" ".join([role, skills, experience, certification])])
     # Calculate the cosine similarity between the two vectors
     score = cosine_similarity(candidate_vector, input_vector)[0][0]
     # Return the score
     return score
+
+# Display the image on top of the page with increased width
+image_width = 900  # Adjust the width according to your preference
+st.markdown(
+    f'<img src="{image_url}" alt="image" style="width:{image_width}px;height:auto;">',
+    unsafe_allow_html=True
+)
+
+# Create a two-column layout for the input and output fields
+col1, col2 = st.columns(2)
+
+# Adjust the width of each column
+col1_width = image_width // 2
+col2_width = image_width // 2
+col1.width = col1_width
+col2.width = col2_width
+
+# Create the input fields in the left column
+role = col1.text_input("Role")
+skills = col1.text_input("Skills")
+experience = col1.text_input("Experience")
+certification = col1.text_input("Certification")
+
+# Create the output field in the right column
+output_table = col2.empty()
+
+# Create the apply and clear buttons below the columns
+apply_button = st.button("Apply")
+clear_button = st.button("Clear")
 
 # Display the message below the Apply button
 st.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
@@ -72,7 +86,6 @@ if apply_button:
         st.error(f"An error occurred: {e}")
         st.text("Check the console or logs for more details.")
 elif clear_button:
-    # Clear the input fields
     role = ""
     skills = ""
     experience = ""
