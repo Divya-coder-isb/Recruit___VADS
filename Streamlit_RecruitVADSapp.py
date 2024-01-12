@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[14]:
+# In[15]:
 
 
 # Import the required libraries
@@ -35,13 +35,12 @@ def get_relevancy_score(job_title, skills, certification, experience):
     
     # Format the output as a dataframe with candidate name, email and relevancy score
     output = pd.DataFrame()
-    output['Candidate Name'] = resume_data['Candidate Name'][sorted_indices].squeeze()
-    output['Email ID'] = resume_data['Email ID'][sorted_indices].squeeze()
+    output['Candidate Name'] = data['Candidate Name'][sorted_indices].squeeze()
+    output['Email ID'] = data['Email ID'][sorted_indices].squeeze()
     output['Relevancy Score'] = (sorted_similarity * 100).round(2).squeeze()
     output['Relevancy Score'] = output['Relevancy Score'].astype(str) + '%'
     
     return output
-
 
 # Display the image on top of the page
 st.image(image_url, use_column_width=True)
