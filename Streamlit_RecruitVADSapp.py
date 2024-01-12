@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[13]:
+# In[14]:
 
 
 # Import the required libraries
@@ -20,24 +20,28 @@ data = pd.read_csv(data_url)
 model = pickle.loads(requests.get(model_url).content)
 vectorizer = pickle.loads(requests.get(vectorizer_url).content)
 
-# Define a function to calculate the relevancy score
-def get_relevancy_score(row):
-    # Extract the candidate's information from the row
-    job_title = row["Role"]
-    skills = row["Skills"]
-    experience = row["Experience"]
-    certification = row["Certification"]
-    # Concatenate the input fields into a single string
-    input_text = " ".join([job_title, skills, experience, certification])
-    # Vectorize the input text using the vectorizer
-    input_vector = vectorizer.transform([input_text])
-    # Predict the relevancy score using the model
-    score = model.predict(input_vector)[0]
-    # Return the score
-    return score
+# Define a function that takes the input from the UI and returns the relevancy score
+def get_relevancy_score(job_title, skills, certification, experience):
+    # Create a vector from the input
+    input_features = [job_title, skills, certification, experience]
+    input_vector = vectorizer.transform(input_features).toarray()
+    
+    # Compute the cosine similarity with the model
+    similarity = model.dot(input_vector.T)
+    
+    # Sort the candidates by descending order of similarity
+    sorted_indices = similarity.argsort(axis=0)[::-1]
+    sorted_similarity = similarity[sorted_indices]
+    
+    # Format the output as a dataframe with candidate name, email and relevancy score
+    output = pd.DataFrame()
+    output['Candidate Name'] = resume_data['Candidate Name'][sorted_indices].squeeze()
+    output['Email ID'] = resume_data['Email ID'][sorted_indices].squeeze()
+    output['Relevancy Score'] = (sorted_similarity * 100).round(2).squeeze()
+    output['Relevancy Score'] = output['Relevancy Score'].astype(str) + '%'
+    
+    return output
 
-# Set the title of the app
-st.title("Recruit VADS")
 
 # Display the image on top of the page
 st.image(image_url, use_column_width=True)
