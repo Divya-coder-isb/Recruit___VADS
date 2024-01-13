@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[11]:
+# In[2]:
 
 
 # Import the required libraries
@@ -9,75 +9,49 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.svm import SVR
+
+# Load the data and the model from the given paths
+data_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Modifiedresumedata_data.csv"
+image_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/RecruitVADSlogo.jpg?raw=true"
+svm_model_url = "https://github.com/Divya-coder-isb/Recruit___VADS/blob/main/Recruit_VADS_model.pkl?raw=true"  
+vectorizer_url = "https://github.com/Divya-coder-isb/Recruit___VADS/blob/main/Tfidf_Vectorizer.pkl?raw=true"  
+
+data = pd.read_csv(data_url)
+svm_model = pickle.loads(requests.get(svm_model_url).content)
+vectorizer = pickle.loads(requests.get(vectorizer_url).content)
+
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
-# Define a function to load the data and the model
-def load_data_and_model(data_url):
-    # Load the data and the model from the given paths
-    image_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/RecruitVADSlogo.jpg?raw=true"
-    model_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Recruit_VADS_model.pkl?raw=true"
-    vectorizer_url = "https://raw.githubusercontent.com/Divya-coder-isb/Recruit___VADS/main/Tfidf_Vectorizer.pkl?raw=true"
+# Define a function to calculate the relevancy score using SVM model
+def get_relevancy_score_svm(row):
+    candidate_text = " ".join([str(row["Role"]), str(row["Skills"]), str(row["Experience"]), str(row["Certification"])])
+    input_vector = vectorizer.transform([candidate_text])
+    score = svm_model.predict(input_vector)[0]
+    return score
 
-    data = pd.read_csv(data_url)
-    model = pickle.loads(requests.get(model_url).content)
-    vectorizer = pickle.loads(requests.get(vectorizer_url).content)
-    image = requests.get(image_url).content
-    return data, model, vectorizer, image
-
-# Modified Resume Data URL
-modified_resume_data_url = "https://github.com/Divya-coder-isb/Recruit___VADS/raw/main/Modifiedresumedata_data.csv"
-
-# Create a sidebar with an input field for the Modified Resume Data URL
-st.sidebar.header("Modified Resume Data Path")
-data, model, vectorizer, image = load_data_and_model(modified_resume_data_url)
-
-# Define a function to calculate the relevancy score
-def get_relevancy_score(row):
-    # Extract the candidate's information from the row
-    job_title = str(row["Role"]) if pd.notnull(row["Role"]) else ""
-    skills = str(row["Skills"]) if pd.notnull(row["Skills"]) else ""
-    experience = str(row["Experience"]) if pd.notnull(row["Experience"]) else ""
-    certification = str(row["Certification"]) if pd.notnull(row["Certification"]) else ""
-    # Concatenate the candidate's text
-    candidate_text = " ".join([job_title, skills, experience, certification])
-
-    # Vectorize the candidate's text using the Modified Resume Data
-    candidate_vector = vectorizer.transform([candidate_text])
-
-    # Vectorize the user's input
-    input_text = " ".join([role, skills, experience, certification])
-    input_vector = vectorizer.transform([input_text])
-
-    # Predict the relevancy score using the model
-    prediction = model.predict(candidate_vector)
-
-    # Scale the prediction to [0, 100]
-    relevancy_score = (prediction + 1) * 50
-
-    # Clip the score to the range [0, 100]
-    relevancy_score = np.clip(relevancy_score, 0, 100)
-
-    # Return the score
-    return relevancy_score
-
-# Display the image on top of the page using st.image
-st.image(image, use_column_width=True)
+# Display the image on top of the page with increased width
+image_width = 900  # Adjust the width according to your preference
+st.markdown(
+    f'<img src="{image_url}" alt="image" style="width:{image_width}px;height:auto;">',
+    unsafe_allow_html=True
+)
 
 # Create a two-column layout for the input and output fields
-col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns(2)
+
+# Adjust the width of each column
+col1_width = image_width // 2
+col2_width = image_width // 2
+col1.width = col1_width
+col2.width = col2_width
 
 # Create the input fields in the left column
 role = col1.text_input("Role")
 skills = col1.text_input("Skills")
 experience = col1.text_input("Experience")
 certification = col1.text_input("Certification")
-
-# Print the user's input
-st.write("Role:", role)
-st.write("Skills:", skills)
-st.write("Experience:", experience)
-st.write("Certification:", certification)
 
 # Create the output field in the right column
 output_table = col2.empty()
@@ -86,22 +60,23 @@ output_table = col2.empty()
 apply_button = st.button("Apply")
 clear_button = st.button("Clear")
 
-# Display the message below the Apply button using st.success
-st.success("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
+# Display the message below the Apply button
+st.markdown("Share job specifics, hit 'Apply,' and behold a dazzling lineup of ideal candidates!")
 
-# Define the logic for the buttons
+# Apply the function to the DataFrame using SVM model
 if apply_button:
     try:
         # Apply the function to the DataFrame
-        data['Relevancy Score'] = data.apply(get_relevancy_score, axis=1)
+        data['Relevancy Score'] = data.apply(get_relevancy_score_svm, axis=1)
         # Sort the DataFrame by the relevancy score
         output_df = data.sort_values(by="Relevancy Score", ascending=False)
+        # Convert to percentage with 2 decimal places
+        output_df["Relevancy Score"] = output_df["Relevancy Score"].apply(lambda x: "{:.2f}%".format(x*100))
         # Display all the records
         output_table.table(output_df[["Candidate Name", "Email ID", "Relevancy Score"]].reset_index(drop=True))
     except Exception as e:
-        # Display the exception using st.exception and stop the execution using st.stop
-        st.exception(e)
-        st.stop()
+        st.error(f"An error occurred: {e}")
+        st.text("Check the console or logs for more details.")
 elif clear_button:
     role = ""
     skills = ""
